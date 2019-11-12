@@ -6,25 +6,26 @@ import com.chargebee.model.Job;
 import java.util.*;
 import java.lang.*;
 import java.io.*;
+import okhttp3.*;
+
 @Service
 class HttpClient{
 
 	public void post(Job job) throws Exception{
 		URL url = new URL("http://localhost:8080/job");
-		HttpURLConnection con = (HttpURLConnection) url.openConnection();
-		con.setRequestMethod("POST");
-		con.setRequestProperty("Content-Type", "application/json");
-		Map<String, String> parameters = new HashMap<>();
-		parameters.put("companyname", job.companyname);
-		parameters.put("offeredsalary", job.offeredSalary);
-		parameters.put("jobdescription", job.companyname+job.offeredSalary); 
-		con.setDoOutput(true);
-		DataOutputStream out = new DataOutputStream(con.getOutputStream());
-		out.writeBytes(ParameterStringBuilder.getParamsString(parameters));
-		out.flush();
-		out.close();
-		int status = con.getResponseCode();
-	}
+		OkHttpClient client = new OkHttpClient();
+
+		MediaType mediaType = MediaType.parse("application/json");
+		RequestBody body = RequestBody.create(mediaType, "{ \t\"companyname\"  : \"ABC\", \t\"jobdescription\" : \"Software Engineer\", \t\"offeredSalary\"  : \"100000000\" }");
+		Request request = new Request.Builder()
+		  .url(url)
+		  .post(body)
+		  .addHeader("Accept", "application/json")
+		  .addHeader("Content-Type", "application/json")
+		  .build();
+
+		Response response = client.newCall(request).execute();
+		}
 }
 
 
